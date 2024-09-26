@@ -2,5 +2,7 @@
     "symbol":"EURUSD",
     "timeframe":"1d",
     "test_size":0.3,
-    "ma_length":100
+    "ma_length":100,
+    "price_type":"price",
+    "seq_length":20
 }
