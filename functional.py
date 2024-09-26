@@ -39,16 +39,17 @@ class funtional():
         self.y_train=self.y[:index]
         self.x_test=self.x[index:]
         self.y_test=self.y[index:]
-    def plot_data(self):
+    def plot_summary(self):
+        self.draw=pd.DataFrame({'True values':self.y,'Predict values':self.pred},index=self.df.index[self.seq_length+1:])
         fg=plt.figure()
-        ax=fg.add_subplot()
-        ax.plot(self.y)
-        ax.set_xticks([],[])
-        ax.set_title(f'Data-{self.timeframe}')
-    def plot_history(self):
-        fg=plt.figure()
-        ax=fg.add_subplot()
-        ax.plot(self.history.history['loss'],label='loss')
-        ax.plot(self.history.history['val_loss'],label='val_loss')
-        ax.legend()
-        ax.set_title('loss_curve')
+        ax_1=fg.add_subplot(2,1,1)
+        ax_2=fg.add_subplot(2,1,2)
+        self.draw.plot(ax=ax_1)
+        ax_1.set_title(f'Data-{self.timeframe}')
+
+        ax_2.plot(self.history.history['loss'],label='loss')
+        ax_2.plot(self.history.history['val_loss'],label='val_loss')
+        ax_2.legend()
+        ax_2.set_title('loss_curve')
+        plt.tight_layout()
+        plt.show()
