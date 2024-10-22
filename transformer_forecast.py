@@ -65,6 +65,7 @@ class encoder(tf.keras.layers.Layer):
 class timeseries_transformer(funtional):
     def __init__(self,num_heads=8,embed_dim=256,ff_dim=64):
         super().__init__()
+        self.model_name='transformer'
         self.num_heads=num_heads
         self.embed_dim=embed_dim
         self.ff_dim=ff_dim
@@ -77,32 +78,41 @@ class timeseries_transformer(funtional):
                 p[k, 2*i+1]=np.cos(k/denominator)
         return p
     def build(self):
+
+        #EURUSD
+        # input_layer= tf.keras.layers.Input((self.seq_length,1))
+        # pos_encode_layer=self.positional_encoding()
+        # data=input_layer+pos_encode_layer
+        # encoder_layer=encoder(self.embed_dim,self.num_heads,self.ff_dim)(data)
+        # dense_layer=tf.keras.layers.Dense(500, activation="leaky_relu")(encoder_layer)
+        # dense_layer=tf.keras.layers.Dense(200, activation="leaky_relu")(dense_layer)
+        # dense_layer=tf.keras.layers.Dense(100, activation="leaky_relu")(dense_layer)
+        # dense_layer=tf.keras.layers.Dense(50, activation="leaky_relu")(dense_layer)
+        # dense_layer=tf.keras.layers.Dense(20, activation="leaky_relu")(dense_layer)
+        # flatten_layer=tf.keras.layers.Flatten()(dense_layer)
+        # output_layer=tf.keras.layers.Dense(1)(flatten_layer)
+        # model=tf.keras.Model(inputs=input_layer, outputs=output_layer)
+
+        #USDVND
         input_layer= tf.keras.layers.Input((self.seq_length,1))
         pos_encode_layer=self.positional_encoding()
         data=input_layer+pos_encode_layer
         encoder_layer=encoder(self.embed_dim,self.num_heads,self.ff_dim)(data)
-        dense_layer=tf.keras.layers.Dense(500, activation="leaky_relu")(encoder_layer)
-        dense_layer=tf.keras.layers.Dense(200, activation="leaky_relu")(dense_layer)
+        dense_layer=tf.keras.layers.Dense(200, activation="leaky_relu")(encoder_layer)
         dense_layer=tf.keras.layers.Dense(100, activation="leaky_relu")(dense_layer)
         dense_layer=tf.keras.layers.Dense(50, activation="leaky_relu")(dense_layer)
         dense_layer=tf.keras.layers.Dense(20, activation="leaky_relu")(dense_layer)
+        dense_layer=tf.keras.layers.Dense(10,activation='leaky_relu')(dense_layer)
         flatten_layer=tf.keras.layers.Flatten()(dense_layer)
         output_layer=tf.keras.layers.Dense(1)(flatten_layer)
         model=tf.keras.Model(inputs=input_layer, outputs=output_layer)
 
         return model
     
-    def train(self,epochs=10,optimizer='adam',loss='mae',batch_size=32):
-        self.model=self.build()
-        self.model.compile(optimizer=optimizer,loss=loss)
-        best_lost=tf.keras.callbacks.ModelCheckpoint(os.path.join(Path().cwd(),f'models/transformer_{self.price_type}_{self.symbol}_{self.timeframe}.weights.h5'),save_weights_only=True,monitor='val_loss',mode='min',save_best_only=True)
-        self.history=self.model.fit(self.x_train,self.y_train,epochs=epochs,batch_size=batch_size,callbacks=[best_lost],validation_data=(self.x_test,self.y_test))
-        self.pred=self.model.predict(self.x).reshape(-1)
-    
 if __name__=='__main__':
     num_heads=8
     embed_dim=256
     ff_dim=64
     model=timeseries_transformer(num_heads,embed_dim,ff_dim)
-    model.train(epochs=100)
+    model.train(epochs=100,loss='mape',batch_size=32,)
     model.plot_summary()
