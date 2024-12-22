@@ -114,5 +114,5 @@ if __name__=='__main__':
     embed_dim=256
     ff_dim=64
     model=timeseries_transformer(num_heads,embed_dim,ff_dim)
-    model.train(epochs=100,loss='mape',batch_size=32,)
+    model.train(epochs=500,loss='mape',batch_size=32,)
     model.plot_summary()

@@ -8,7 +8,6 @@ import json
 plt.rc('figure',titleweight='bold',titlesize='large',figsize=(15,6))
 plt.rc('axes',titleweight='bold',titlesize='large',labelweight='bold',labelsize='large',grid=True)
 
-
 class plot_training(tf.keras.callbacks.Callback):
     def __init__(self,data,labels,plot_label=True):
         super().__init__()
@@ -41,7 +40,7 @@ class funtional():
             self.seq_length=params['seq_length']
 
         self.df=pd.read_csv(os.path.join(Path(__file__).parent,f'data/{self.symbol}/{self.symbol}_{self.timeframe}.csv'),index_col=0,parse_dates=True)
-        self.df['price']=self.df['Close']
+        self.df['price']=self.df['Close']/100000
         self.df['log']=np.log(self.df['Close'])
         self.df['moving_average']=self.df['price'].rolling(self.ma_length).mean()
         self.df['diff']=(self.df['price']-self.df['moving_average']).dropna()
@@ -59,6 +58,7 @@ class funtional():
 
         self.x_test=self.x[index:]
         self.y_test=self.y[index:]
+
     def plot_summary(self):
         self.draw=pd.DataFrame({'True values':self.y,'Predict values':self.pred},index=self.df.index[self.seq_length+1:])
         fg=plt.figure()
@@ -74,7 +74,7 @@ class funtional():
         plt.tight_layout()
         plt.show()
 
-    def train(self,epochs=10,optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),loss='mae',batch_size=32,plot_label=True):
+    def train(self,epochs=10,optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),loss='mse',batch_size=32,plot_label=True):
         self.model=self.build()
         self.model.compile(optimizer=optimizer,loss=loss)
         best_lost=tf.keras.callbacks.ModelCheckpoint(os.path.join(Path(__file__).parent,f'models/{self.model_name}_{self.price_type}_{self.symbol}_{self.timeframe}.weights.h5'),save_weights_only=True,monitor='val_loss',mode='min',save_best_only=True)
